@@ -17,7 +17,7 @@ services:
     restart: unless-stopped
 
   prod:
-    image: ${PROD_IMAGE:-kaw393939/is373_ci_cd:prod}
+    image: ${PROD_IMAGE:-pb392/is373_ci_cd:prod}
     ports:
       - "127.0.0.1:8090:8000"
     environment:

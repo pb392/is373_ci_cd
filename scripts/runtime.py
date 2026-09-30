@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 STATE = ROOT / ".state"
 ARTIFACTS = ROOT / "artifacts"
 IMAGE = os.getenv("IMAGE", "is373-ci-cd:local")
-REPOSITORY = "kaw393939/is373_ci_cd"
+REPOSITORY = "pb392/is373_ci_cd"
 
 
 def run(args, **kwargs):

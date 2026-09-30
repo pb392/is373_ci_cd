@@ -8,7 +8,7 @@ import subprocess
 import urllib.error
 import urllib.request
 
-REPOSITORY = "kaw393939/is373_ci_cd"
+REPOSITORY = "pb392/is373_ci_cd"
 ARCHITECTURES = ("amd64", "arm64")
 
 

@@ -23,7 +23,7 @@ PRs and manual dispatch can verify but never publish. A PR run does not receive 
 | `prod` | Moving channel pointing at the latest promoted index |
 | `@sha256:...` | Immutable registry content identity (index or platform manifest) |
 
-All references use repository `kaw393939/is373_ci_cd`. Docker selects the appropriate platform from an index. The image ID used by the runtime is the local platform image's identity; it is not necessarily the registry index digest. Publication evidence records child manifests and the index so the distinction can be taught explicitly.
+All references use repository `pb392/is373_ci_cd`. Docker selects the appropriate platform from an index. The image ID used by the runtime is the local platform image's identity; it is not necessarily the registry index digest. Publication evidence records child manifests and the index so the distinction can be taught explicitly.
 
 Tags are protected by project convention, not registry immutability. The publisher refuses a rerun if any commit tag already exists, including a partially uploaded platform release. Publish a new commit after diagnosing an interrupted release. Do not overwrite old evidence or silently rebuild for the same tag.
 
@@ -31,7 +31,7 @@ Workflow concurrency serializes production releases without cancelling an in-pro
 
 ## Credentials and architecture
 
-The publisher uses the existing `DOCKER_API_KEY` Actions secret. Keep it out of Git and logs. The pinned Python and WUD image indexes include both supported architectures. Local `make build` targets the Docker daemon's architecture unless `BUILD_PLATFORM` selects a supported override.
+The publisher uses the existing `DOCKER_API_REP` Actions secret. Keep it out of Git and logs. The pinned Python and WUD image indexes include both supported architectures. Local `make build` targets the Docker daemon's architecture unless `BUILD_PLATFORM` selects a supported override.
 
 The original demo tags are ARM64-only. New indexes support both architectures; do not promise AMD64 rollback to a historical tag without inspecting its manifest. The single-platform E2E images are tested natively, not merely built with emulation.
 
