@@ -61,3 +61,13 @@ def test_health_identifies_release(client, monkeypatch):
         "status": "ok", "environment": "test", "commit": "a" * 40,
         "built_at": "2026-09-17T18:00:00Z",
     }
+
+
+@pytest.mark.parametrize("path,view", [("/", "home"), ("/calculator", "calculator")])
+def test_page_routes(client, path, view):
+    response = client.get(path)
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/html")
+    assert response.headers["cache-control"] == "no-store"
+    assert f'data-page="{view}"' in response.text
+    assert "__PAGE__" not in response.text

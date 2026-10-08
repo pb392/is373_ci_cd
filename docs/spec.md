@@ -47,7 +47,7 @@ Compare numeric values before formatting. Display up to ten significant digits, 
 
 ### UI-01 — One accessible HTML file
 
-Serve one HTML file at `/`, containing the page markup, CSS, and JavaScript. Use standard browser APIs, with no CDN or frontend build step. Associate labels with controls, use keyboard-accessible inputs, and announce results/errors with a live region. Status must use words, not color alone. The page must remain usable on a narrow viewport.
+Serve one shared HTML file at `/` and `/calculator`, containing all page markup, CSS, and JavaScript. The server selects the visible view before delivery; the test homepage works without JavaScript. Use standard browser APIs, with no CDN or frontend build step. Associate labels with controls, use keyboard-accessible inputs, and announce results/errors with a live region. Status must use words, not color alone. The page must remain usable on a narrow viewport.
 
 ### OPS-01 — Release identity
 
@@ -63,7 +63,8 @@ On a network failure, timeout, or non-JSON server error, retain any valid browse
 
 | Route | Success | Error |
 | --- | --- | --- |
-| `GET /` | `200`, HTML calculator | Normal server error handling |
+| `GET /` | `200`, HTML test homepage | Normal server error handling |
+| `GET /calculator` | `200`, HTML calculator | Normal server error handling |
 | `POST /api/calculate` | `200`, JSON result | `422` invalid request; `400` arithmetic error |
 | `GET /health` | `200`, JSON health and release identity | Connection failure/non-200 means not ready |
 
@@ -120,3 +121,10 @@ See [testing](testing.md) for coverage, [CI/CD](ci-cd.md) for delivery details, 
 - **DOC-01:** The hosting companion owns DNS, TLS, firewall, proxy, and its routing overlay; this repository owns the app and delivery. Cross-links describe the handoff without duplicating either source of truth.
 
 Acceptance: both native PR checks pass; rendered Compose retains overrides and loopback ports; regression tests cover conflicting release selection; a production publication records both platform digests and the index. A new public deployment/rollback rehearsal must be recorded separately before claiming it occurred.
+
+## Xenoshin test homepage
+
+- **UI-02:** `/` shows xenoshin.com, “The test website is working.”, and “This page loaded successfully.” without requiring JavaScript. It contains no visible calculator or release details and fits a narrow mobile viewport.
+- **UI-03:** The existing calculator remains available at `/calculator`; its calculation, health, and release identity contracts remain unchanged.
+
+Publishing a Docker image does not demonstrate that xenoshin.com is serving it. Server access, routing, and public HTTPS verification remain a separate hosting step.

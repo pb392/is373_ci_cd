@@ -1,5 +1,7 @@
 # IS 373: application delivery
 
+The homepage displays **“The test website is working.”** for xenoshin.com. The existing calculator is available at `/calculator`.
+
 A small FastAPI calculator makes a tested release visible: the browser calculates in JavaScript, verifies through Python, and reports the running commit. Learn to test, build, publish, deploy, and roll back one application.
 
 This repository owns **application code and delivery**. Its companion, [373_hosting](https://github.com/kaw393939/373_hosting), owns **Ubuntu, Docker installation, DNS, Traefik, and public HTTPS**. Each works independently; together they provide the complete course.
@@ -26,7 +28,7 @@ make browsers
 make dev
 ```
 
-Open [localhost:8080](http://localhost:8080). Development starts without a published image. Once the first passing release has reached Docker Hub, `make up` also starts production and the updater.
+Open [the test homepage](http://localhost:8080) or [the calculator](http://localhost:8080/calculator). Development starts without a published image. Once the first passing release has reached Docker Hub, `make up` also starts production and the updater.
 
 | Service | Local address | Purpose |
 |---|---|---|

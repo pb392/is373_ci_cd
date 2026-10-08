@@ -15,7 +15,7 @@ flowchart TB
     e2e[Playwright Chromium] -->|HTTP to built container| browser
 ```
 
-FastAPI serves the page and API from one origin, avoiding CORS configuration. Calculation logic has no dependency on HTTP, environment variables, or container runtime. The API layer translates validation and domain errors into the specified HTTP contract.
+FastAPI serves the test homepage at `/`, the preserved calculator at `/calculator`, and the API from one origin, avoiding CORS configuration. Calculation logic has no dependency on HTTP, environment variables, or container runtime. The API layer translates validation and domain errors into the specified HTTP contract.
 
 Release metadata is baked into `app/release.json` inside the image and exposed through `/health`. It is not stored in runtime environment variables that an updater could carry over from the old container. The development source mount hides this generated file and reports `local`.
 

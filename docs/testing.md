@@ -31,7 +31,7 @@ Use parameterization to keep tests readable. Avoid broad browser matrices and ar
 | DEL-01–DEL-05 | Container/deployment checks and the recorded demo, not redundant unit tests of YAML |
 | DEL-06 | Deliberately fail a browser assertion and confirm uploaded trace/screenshot |
 
-The suite includes success, empty/zero-divisor input, decimal, network failure, mismatch, and narrow-screen keyboard scenarios. Keep one Chromium worker, no automatic retries initially, and no fixed sleeps. Wait for readiness with a bounded health-check loop, then use Playwright's condition-based assertions.
+The homepage checks cover its HTTP routes, visibility without JavaScript, and narrow-screen layout. The calculator suite includes success, empty/zero-divisor input, decimal, network failure, mismatch, and narrow-screen keyboard scenarios. Keep one Chromium worker, no automatic retries initially, and no fixed sleeps. Wait for readiness with a bounded health-check loop, then use Playwright's condition-based assertions.
 
 ## Commands and evidence
 
