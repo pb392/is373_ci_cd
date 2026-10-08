@@ -1,11 +1,18 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-page="__PAGE__">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A small calculator that makes the CI/CD process visible.">
-  <title>Calculator / CI/CD Lab</title>
+  <meta name="description" content="The xenoshin.com test website.">
+  <title>Xenoshin | Test website</title>
   <style>
+    html[data-page="home"] .calculator-view,html[data-page="calculator"] .test-view{display:none}
+    .test-view{min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:32px 24px}
+    .test-mark{display:grid;place-items:center;width:64px;height:64px;border:1px solid #b9d7c5;border-radius:50%;background:#e5f1e8;color:#226849;font-size:30px;margin-bottom:32px}
+    .test-view .eyebrow{color:#536775;letter-spacing:.16em}
+    .test-view h1{max-width:650px;margin:22px 0;font-size:clamp(40px,7vw,72px)}
+    .test-view p{color:#536775;margin:0;font-size:18px}
+    .test-view .test-label{margin-top:48px;padding-top:20px;border-top:1px solid #d7dedc;font:12px ui-monospace,monospace;letter-spacing:.08em}
     :root{color-scheme:light;--ink:#172c3b;--muted:#536775;--paper:#f4f2ed;--line:#d7dedc;--accent:#c34d29;--green:#226849}
     *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,sans-serif}
     header,main,footer{max-width:1000px;margin:auto;padding:0 32px}header{display:flex;justify-content:space-between;gap:16px;align-items:center;padding-top:30px;padding-bottom:24px;border-bottom:1px solid var(--line)}
@@ -21,8 +28,15 @@
   </style>
 </head>
 <body>
-  <header><div class="brand">CI/CD LAB <span>/ IS373</span></div><div class="pill" id="api-status" role="status">Checking API…</div></header>
-  <main>
+  <main class="test-view">
+    <div class="test-mark" aria-hidden="true">✓</div>
+    <div class="eyebrow">xenoshin.com</div>
+    <h1>The test website is working.</h1>
+    <p>This page loaded successfully.</p>
+    <div class="test-label">XENOSHIN / TEST WEBSITE</div>
+  </main>
+  <header class="calculator-view"><div class="brand">CI/CD LAB <span>/ IS373</span></div><div class="pill" id="api-status" role="status">Checking API…</div></header>
+  <main class="calculator-view">
     <div class="eyebrow">One calculation. Two runtimes.</div>
     <h1>Small app. Complete pipeline.</h1>
     <p class="intro">Calculate in your browser, verify with Python, and see both results agree. A passing build brings the next version here automatically.</p>
@@ -48,8 +62,10 @@
     </section>
     <div class="path" aria-label="Release pipeline"><b>Commit</b><span>→</span><b>Unit + integration</b><span>→</span><b>Browser test</b><span>→</span><b>Docker Hub</b><span>→</span><b>Deploy</b></div>
   </main>
-  <footer><div class="release"><div>Environment: <strong id="environment">Loading…</strong></div><div>Commit: <strong id="commit">—</strong></div><div>Built: <strong id="built-at">—</strong></div></div></footer>
-  <script>
+  <footer class="calculator-view"><div class="release"><div>Environment: <strong id="environment">Loading…</strong></div><div>Commit: <strong id="commit">—</strong></div><div>Built: <strong id="built-at">—</strong></div></div></footer>
+  <script type="module">
+    if (document.documentElement.dataset.page === 'calculator') {
+    document.title = 'Calculator / CI/CD Lab';
     const $ = id => document.getElementById(id);
     const format = number => Number(number.toPrecision(10)).toString();
     const operations = {add:(a,b)=>a+b, subtract:(a,b)=>a-b, multiply:(a,b)=>a*b, divide:(a,b)=>a/b};
@@ -114,6 +130,7 @@
       }
     });
     loadHealth();
+    }
   </script>
 </body>
 </html>

@@ -5,7 +5,7 @@ from playwright.sync_api import expect
 @pytest.fixture(autouse=True)
 def open_calculator(page, base_url):
     assert base_url, "Pass --base-url for the running application"
-    page.goto(base_url)
+    page.goto(base_url + '/calculator')
     expect(page.get_by_role("heading", name="Calculator", exact=True)).to_be_visible()
 
 

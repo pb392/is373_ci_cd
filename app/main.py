@@ -7,7 +7,7 @@ from typing import Annotated
 
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.calculator import LIMIT, CalculationError, Operation, calculate
@@ -18,7 +18,17 @@ Operand = Annotated[float, Field(strict=True, ge=-LIMIT, le=LIMIT, allow_inf_nan
 
 @app.get("/", include_in_schema=False)
 def homepage():
-    return FileResponse(Path(__file__).with_name("index.html"), headers={"Cache-Control": "no-store"})
+    return render_page("home")
+
+
+@app.get("/calculator", include_in_schema=False)
+def calculator_page():
+    return render_page("calculator")
+
+
+def render_page(page):
+    html = Path(__file__).with_name("index.html").read_text()
+    return HTMLResponse(html.replace("__PAGE__", page), headers={"Cache-Control": "no-store"})
 
 
 @app.exception_handler(RequestValidationError)
