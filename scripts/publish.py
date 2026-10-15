@@ -17,12 +17,12 @@ def output(args):
 
 
 def validate_release(event, ref, commit, main_head, tested, image_id):
-    if event != "push" or ref != "refs/heads/main":
-        raise ValueError("Publication requires a main push, never a PR or manual run")
+    if event != "push" or ref not in ("refs/heads/main", "refs/heads/qa"):
+        raise ValueError("Publication requires a main or qa push, never a PR or manual run")
     if not re.fullmatch(r"[0-9a-f]{40}", commit):
         raise ValueError("A full commit SHA is required")
     if commit != main_head:
-        raise ValueError("Refusing to promote a stale main commit")
+        raise ValueError("Refusing to promote a stale branch commit")
     if tested.get("commit") != commit or tested.get("image_id") != image_id:
         raise ValueError("The publish image must be the exact E2E-tested release")
 
@@ -53,6 +53,10 @@ def validate_artifact(architecture, tested, image, commit):
 def main():
     commit = os.environ["GITHUB_SHA"]
     github_repo = os.environ["GITHUB_REPOSITORY"]
+    branch = os.environ["GITHUB_REF"].removeprefix("refs/heads/")
+    if branch not in ("main", "qa"):
+        raise SystemExit("Only main and qa can publish")
+    channel_name = "prod" if branch == "main" else "qa"
     artifacts = Path(os.getenv("RELEASE_DIR", "release-images"))
     releases = {}
     # Validate all artifacts before pushing any tags. docker load does not rebuild.
@@ -65,7 +69,7 @@ def main():
         releases[architecture] = tested
 
     def check_current():
-        head = output(["gh", "api", f"repos/{github_repo}/git/ref/heads/main", "--jq", ".object.sha"])
+        head = output(["gh", "api", f"repos/{github_repo}/git/ref/heads/{branch}", "--jq", ".object.sha"])
         for tested in releases.values():
             validate_release(os.environ["GITHUB_EVENT_NAME"], os.environ["GITHUB_REF"],
                              commit, head, tested, tested["image_id"])
@@ -95,7 +99,7 @@ def main():
     reference = f"{REPOSITORY}@{digest}"
     # No rebuild: prod becomes a copy of the immutable, two-platform index.
     check_current()
-    channel = f"{REPOSITORY}:prod"
+    channel = f"{REPOSITORY}:{channel_name}"
     subprocess.run(["docker", "buildx", "imagetools", "create", "--tag", channel, reference], check=True)
     with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
         summary.write(f"## Published multi-platform release\n\n- Commit: `{commit}`\n- Version: `{version}`\n- Channel: `{channel}`\n- Index: `{reference}`\n\nBoth native artifacts passed E2E before publication. Verify the running `/health` commit separately.\n")

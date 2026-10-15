@@ -1,0 +1,27 @@
+SSH verification — October 15, 2026
+No private keys, passwords, or tokens included.
+
+Non-root key login and limited administration
+$ ssh -o BatchMode=yes -o ConnectTimeout=8 webadmin@104.248.180.176 'id; sudo -n /usr/local/sbin/xenoshin-admin status; sudo -n /usr/local/sbin/xenoshin-admin ssh-settings'
+uid=1000(webadmin) gid=1000(webadmin) groups=1000(webadmin),27(sudo),100(users)
+is373-ci-cd-wud-1 getwud/wud:9.0.2 Up 6 days (healthy)
+is373-ci-cd-prod-1 pb392/is373_ci_cd:prod Up 6 days (healthy)
+xenoshin-hosting-traefik-1 traefik:v3.7.13 Up 6 days (healthy)
+permitrootlogin no
+pubkeyauthentication yes
+passwordauthentication no
+kbdinteractiveauthentication no
+
+Exit status: 0
+
+Root key login must be rejected
+$ ssh -o BatchMode=yes -o ConnectTimeout=8 root@104.248.180.176 true
+root@104.248.180.176: Permission denied (publickey).
+
+Exit status: 255
+
+Password-only login must be rejected
+$ ssh -o BatchMode=yes -o ConnectTimeout=8 -o PubkeyAuthentication=no -o PreferredAuthentications=password webadmin@104.248.180.176 true
+webadmin@104.248.180.176: Permission denied (publickey).
+
+Exit status: 255

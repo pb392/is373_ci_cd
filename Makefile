@@ -19,5 +19,5 @@ test-browser:
 	$(UV) run --frozen pytest tests/e2e -q --base-url=$(BASE_URL) --browser chromium --tracing retain-on-failure --screenshot only-on-failure --output artifacts/playwright
 
 export RELEASE
-build test-e2e dev up deploy verify-production down rollback pause-updates resume-updates check-updates status:
+build test-e2e dev up deploy deploy-qa verify-production down rollback pause-updates resume-updates check-updates status:
 	python3 scripts/runtime.py $@

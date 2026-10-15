@@ -128,3 +128,13 @@ Acceptance: both native PR checks pass; rendered Compose retains overrides and l
 - **UI-03:** The existing calculator remains available at `/calculator`; its calculation, health, and release identity contracts remain unchanged.
 
 Publishing a Docker image does not demonstrate that xenoshin.com is serving it. Server access, routing, and public HTTPS verification remain a separate hosting step.
+
+## Practical assessment: QA and production (issue #5)
+
+- **DEL-09:** Pushes to `qa` test/build/publish only `:qa`. Merging an approved QA change into `main` test/build/publishes `:prod`. Both use the same two native artifact verification gates; failed checks cannot publish. Public verification must observe the expected commit and environment over HTTPS.
+- **OPS-05:** Separate QA and production containers use ports 8092 and 8090 on loopback, hostnames qa.xenoshin.com and xenoshin.com, and distinct registry channels. QA changes do not alter production. Only the QA and production release services are watched; development and infrastructure are excluded.
+- **SEC-01:** SSH key access uses the verified non-root `webadmin` account. Root SSH and password/keyboard-interactive SSH are disabled after verifying non-root access. Preserve redacted effective settings and negative-login results.
+- **DOC-02:** README starts with QA/production links and includes Test Evidence: successful workflows, registry, image/commit identities, screenshots of QA before promotion and production afterward, and SSH checks.
+- **UI-04:** The homepage shows a visible version message, environment, and short running commit so a promotion can be demonstrated. Preserve the calculator at `/calculator`.
+
+The practical assessment supersedes the earlier main-only delivery scope and the original separation of hosting examples: sanitized configuration for this user's deployment is tracked in this repository so the instructor can reproduce it. Private keys, ACME state, and local credentials remain excluded.

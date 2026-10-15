@@ -18,9 +18,9 @@ Build a minimal CI/CD teaching template: FastAPI, pytest, Playwright Python, and
 - Keep arithmetic separate from HTTP. Test Python logic with pytest, API integration with TestClient, and the real container/browser flow with Playwright.
 - Use the shared command interface in [CONTRIBUTING.md](CONTRIBUTING.md).
 - Build once per supported native architecture, browser-test each artifact, and publish those saved artifacts as a multi-platform index. Do not rebuild silently after testing.
-- Keep host/TLS/proxy examples in 373_hosting. Preserve the optional local Compose override on every application lifecycle operation.
+- The practical assessment requires sanitized deployment configuration in this repository under deploy/. Keep certificate stores and credentials private. Preserve the optional local Compose override on every application lifecycle operation.
 - Keep development on `8080`, production on `8090`, and E2E containers isolated from both.
-- Configure updater access explicitly; update only production. Never imply a read-only Docker socket mount removes Docker control privileges.
+- Configure updater access explicitly; update only the separate QA and production release services. Never imply a read-only Docker socket mount removes Docker control privileges.
 - Do not add a Sites or other hosting deployment to this Docker-based project.
 
 ## Work and review discipline

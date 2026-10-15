@@ -6,11 +6,14 @@ SHA = "a" * 40
 IMAGE_ID = "sha256:" + "b" * 64
 
 
-def test_current_tested_main_artifact_can_publish():
-    validate_release("push", "refs/heads/main", SHA, SHA, {"commit": SHA, "image_id": IMAGE_ID}, IMAGE_ID)
+@pytest.mark.parametrize("ref", ["refs/heads/main", "refs/heads/qa"])
+def test_current_tested_branch_artifact_can_publish(ref):
+    validate_release("push", ref, SHA, SHA, {"commit": SHA, "image_id": IMAGE_ID}, IMAGE_ID)
 
 
 @pytest.mark.parametrize("event,ref,commit,head,tested", [
+    ("push", "refs/heads/feature", SHA, SHA, {"commit": SHA, "image_id": IMAGE_ID}),
+    ("push", "refs/heads/qa", SHA, "c" * 40, {"commit": SHA, "image_id": IMAGE_ID}),
     ("pull_request", "refs/pull/1/merge", SHA, SHA, {"commit": SHA, "image_id": IMAGE_ID}),
     ("workflow_dispatch", "refs/heads/main", SHA, SHA, {"commit": SHA, "image_id": IMAGE_ID}),
     ("push", "refs/heads/main", SHA, "c" * 40, {"commit": SHA, "image_id": IMAGE_ID}),

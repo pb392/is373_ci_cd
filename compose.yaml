@@ -29,6 +29,20 @@ services:
       wud.tag.include: "^prod$$"
       wud.trigger.include: docker.production
 
+  qa:
+    image: ${QA_IMAGE:-pb392/is373_ci_cd:qa}
+    profiles: [qa]
+    ports:
+      - "127.0.0.1:8092:8000"
+    environment:
+      APP_ENV: qa
+    restart: unless-stopped
+    labels:
+      wud.watch: "true"
+      wud.watch.digest: "true"
+      wud.tag.include: "^qa$$"
+      wud.trigger.include: docker.production
+
   wud:
     image: getwud/wud:9.0.2@sha256:257b2221f201a0231db295b662882c5873ff72dc687be94dbae2e15f5394f151
     ports:
