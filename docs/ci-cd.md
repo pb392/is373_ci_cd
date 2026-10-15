@@ -8,8 +8,8 @@ The original ARM64 demo is recorded in [evidence](evidence.md). The current pipe
 2. Each builds one release image with the exact Git commit and build timestamp, then runs Chromium E2E against that image on isolated port 18090.
 3. Each exports that image with `docker save` and records its image ID, architecture, OS, and tested commit. The image archive is not rebuilt in publication.
 4. The stable required check `verify` fails unless both jobs succeeded. Existing branch protection continues to require this name.
-5. Only a successful push to current `main` authenticates to Docker Hub. The publisher loads both archives, compares them with their test evidence and embedded release labels, and checks that main has not advanced.
-6. It pushes immutable-by-convention platform tags, creates one multi-platform commit index from their registry digests, rechecks main, and copies that index to `prod`.
+5. Only a successful push to current `main` or `qa` authenticates to Docker Hub. The publisher loads both archives, compares them with their test evidence and embedded release labels, and checks that the publishing branch has not advanced.
+6. It pushes immutable-by-convention platform tags, creates one multi-platform commit index from their registry digests, rechecks the branch, and copies that index to `prod` for main or `qa` for qa.
 
 PRs and manual dispatch can verify but never publish. A PR run does not receive publishing credentials. Test/image artifacts are scoped to the current workflow run. Release image archives expire after two days; test and publication evidence after seven. Do not use `pull_request_target` to execute untrusted contributor code with secrets.
 
@@ -20,14 +20,15 @@ PRs and manual dispatch can verify but never publish. A PR run does not receive 
 | `sha-<full-commit>-amd64` | Exact native AMD64 image tested for that commit |
 | `sha-<full-commit>-arm64` | Exact native ARM64 image tested for that commit |
 | `sha-<full-commit>` | Multi-platform index containing both tested images |
-| `prod` | Moving channel pointing at the latest promoted index |
+| `prod` | Production channel, published only by main |
+| `qa` | QA channel, published only by qa |
 | `@sha256:...` | Immutable registry content identity (index or platform manifest) |
 
 All references use repository `pb392/is373_ci_cd`. Docker selects the appropriate platform from an index. The image ID used by the runtime is the local platform image's identity; it is not necessarily the registry index digest. Publication evidence records child manifests and the index so the distinction can be taught explicitly.
 
 Tags are protected by project convention, not registry immutability. The publisher refuses a rerun if any commit tag already exists, including a partially uploaded platform release. Publish a new commit after diagnosing an interrupted release. Do not overwrite old evidence or silently rebuild for the same tag.
 
-Workflow concurrency serializes production releases without cancelling an in-progress push. A stale-main check runs before upload and again immediately before moving `prod`. Partial uploads may leave unused commit tags; a failed pre-promotion step leaves the existing production channel unchanged. A new main commit can still arrive immediately after the final check; the serialized newer run will follow. This is not a transaction across GitHub and Docker Hub.
+Workflow concurrency serializes releases within each branch without cancelling an in-progress push. A stale-main check runs before upload and again immediately before moving `prod`. Partial uploads may leave unused commit tags; a failed pre-promotion step leaves the existing production channel unchanged. A new main commit can still arrive immediately after the final check; the serialized newer run will follow. This is not a transaction across GitHub and Docker Hub.
 
 ## Credentials and architecture
 
@@ -37,7 +38,7 @@ The original demo tags are ARM64-only. New indexes support both architectures; d
 
 ## Host-side deployment
 
-WUD polls the digest behind `prod`, filters candidates to that tag, and updates only the opted-in production container. Development, WUD itself, and unrelated hosting services are not opted in. The Docker trigger preserves the application's runtime configuration; confirm its network and Traefik labels during the public-update exercise.
+WUD polls the separate `prod` and `qa` channels and updates only the corresponding opted-in release container. QA never watches the production tag, and production never watches the QA tag. Development, WUD itself, and unrelated hosting services are not opted in. After publication, the workflow polls the selected public HTTPS health endpoint until the expected commit and environment are observed; timeout makes deployment verification fail. The Docker trigger preserves the application's runtime configuration; confirm its network and Traefik labels during the public-update exercise.
 
 `make deploy` pulls the selected published image, starts production without development, checks its actual image/health identity, and starts WUD unless a pause marker exists. `make up` additionally builds/starts development. Every lifecycle command includes an optional local `compose.override.yaml`.
 

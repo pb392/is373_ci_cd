@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+[ "$#" -eq 1 ] || exit 64
+cd /opt/is373_ci_cd
+case "$1" in
+  status) /usr/bin/docker ps --format '{{.Names}} {{.Image}} {{.Status}}';;
+  deploy-qa) /usr/bin/make deploy-qa;;
+  deploy-production) /usr/bin/make deploy;;
+  verify-production) /usr/bin/make verify-production;;
+  check-updates) /usr/bin/make check-updates;;
+  ssh-settings) /usr/sbin/sshd -T | /usr/bin/grep -E '^(permitrootlogin|passwordauthentication|kbdinteractiveauthentication|pubkeyauthentication) ';;
+  *) echo 'Unsupported operation' >&2; exit 64;;
+esac

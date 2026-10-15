@@ -1,5 +1,6 @@
 """HTTP contracts and release identity for the demo."""
 
+import html
 import json
 import os
 from pathlib import Path
@@ -27,8 +28,11 @@ def calculator_page():
 
 
 def render_page(page):
-    html = Path(__file__).with_name("index.html").read_text()
-    return HTMLResponse(html.replace("__PAGE__", page), headers={"Cache-Control": "no-store"})
+    source = Path(__file__).with_name("index.html").read_text()
+    release = health()
+    source = source.replace("__PAGE__", page).replace("__ENVIRONMENT__", html.escape(release["environment"]))
+    source = source.replace("__COMMIT__", html.escape(release["commit"][:7]))
+    return HTMLResponse(source, headers={"Cache-Control": "no-store"})
 
 
 @app.exception_handler(RequestValidationError)

@@ -1,81 +1,55 @@
-# IS 373: application delivery
+# Xenoshin — secure QA and production deployment
 
-The homepage displays **“The test website is working.”** for xenoshin.com. The existing calculator is available at `/calculator`.
+**[Production: xenoshin.com](https://xenoshin.com)** · **[QA: qa.xenoshin.com](https://qa.xenoshin.com)**
 
-A small FastAPI calculator makes a tested release visible: the browser calculates in JavaScript, verifies through Python, and reports the running commit. Learn to test, build, publish, deploy, and roll back one application.
+[Public GitHub repository](https://github.com/pb392/is373_ci_cd) · [Docker Hub images](https://hub.docker.com/r/pb392/is373_ci_cd)
 
-This repository owns **application code and delivery**. Its companion, [373_hosting](https://github.com/kaw393939/373_hosting), owns **Ubuntu, Docker installation, DNS, Traefik, and public HTTPS**. Each works independently; together they provide the complete course.
+A minimal containerized test website on my DigitalOcean Droplet. The homepage shows the release message, environment, and running commit; the original calculator remains at `/calculator`.
 
-| Your goal | Start here |
-|---|---|
-| Run the calculator locally | Quick start below |
-| Learn unit, integration, and browser testing | [Testing](docs/testing.md) |
-| Understand tested multi-platform releases | [CI/CD](docs/ci-cd.md) |
-| Put the published application behind HTTPS | [Hosting handoff](docs/hosting.md) |
-| Rehearse failed tests and rollback | [Demo runbook](docs/demo.md) |
-| Change the project | [Contributing](CONTRIBUTING.md) and [specification](docs/spec.md) |
-| Inspect previous demonstrations | [Evidence](docs/evidence.md) and [QA](docs/qa.md) |
+## Promotion rule
 
-## Quick start: local development
+1. Push a change to `qa`. GitHub Actions runs unit, API integration, and Chromium browser tests on native AMD64 and ARM64 runners. It builds each platform once, tests that exact image, and publishes the saved artifacts to `pb392/is373_ci_cd:qa` only after all checks pass.
+2. The server's WUD updater observes the QA image digest and replaces only the QA container. The workflow waits for `https://qa.xenoshin.com/health` to report the expected commit and `qa` environment. QA changes do not change production.
+3. Review QA, then merge a pull request from `qa` into `main`. The same checks publish `:prod`; the updater replaces only production. The workflow verifies the expected production commit over HTTPS and captures both pages.
 
-Prerequisites: Docker with Linux containers, Git, `make`, and a bootstrap Python 3 with pip. Python 3.13.15, uv, and test dependencies install inside this repository's ignored tool directories.
+Pull requests and manual workflow runs test but never publish. A failed test or build prevents publication. Registry credentials use the GitHub Actions secret `DOCKER_API_REP`; no server private key is needed by Actions. Source changes are promoted by merge; each branch commit has its own tested immutable image tag.
+
+## Test Evidence
+
+Evidence collection for issue [#5](https://github.com/pb392/is373_ci_cd/issues/5) is in progress. Verified workflow URLs, before/after screenshots, SSH results, and deployed identities will be added here after the real promotion completes. This paragraph is not a claim that the demonstration has passed.
+
+## Deployment configuration
+
+- [Application services](compose.yaml): separate QA and production containers on loopback ports 8092 and 8090. The local development service uses 8080.
+- [HTTPS proxy](deploy/traefik.compose.yaml) and [routing overlay](deploy/routes.yaml): only QA and production have public HTTPS routes. HTTP redirects to HTTPS and certificates renew automatically.
+- [Public domain settings](deploy/site.env.example): copy to the server checkout as `.env`; copy the routing overlay as `compose.override.yaml`.
+- [SSH policy](deploy/ssh-hardening.conf): install only after verifying non-root key access. Disables root and password/keyboard-interactive SSH.
+- [Limited administration command](deploy/xenoshin-admin): installed root-owned and executable; `webadmin` may use sudo for only the enumerated operations. No unrestricted passwordless sudo was added.
+
+The site runs on the owner's DigitalOcean server at `104.248.180.176`. Application checkout: `/opt/is373_ci_cd`; proxy: `/opt/xenoshin-hosting`. SSH administration uses `webadmin@104.248.180.176`. Private SSH keys, certificates, tokens, and updater passwords are never committed.
+
+The QA and production services follow separate image channels and have no shared source-code mounts. The updater dashboard stays on loopback port 8091 with authentication; it is not publicly routed. Its Docker access is privileged. Pause/resume operations stop/start the common updater, affecting automatic updates for both environments; a production rollback recreates production only.
+
+## Run and test locally
 
 ```sh
-git clone https://github.com/kaw393939/is373_ci_cd.git
+git clone https://github.com/pb392/is373_ci_cd.git
 cd is373_ci_cd
 make setup
 make browsers
-make dev
-```
-
-Open [the test homepage](http://localhost:8080) or [the calculator](http://localhost:8080/calculator). Development starts without a published image. Once the first passing release has reached Docker Hub, `make up` also starts production and the updater.
-
-| Service | Local address | Purpose |
-|---|---|---|
-| Development | `http://localhost:8080` | Source-mounted reload |
-| Production | `http://localhost:8090` | Published image, no source mount |
-| WUD | `http://localhost:8091` | Authenticated updater, accessible only through loopback |
-
-`make up` generates WUD credentials in ignored `.state/wud.env`; open the file locally when you need its dashboard. For an occupied development port, copy `.env.example` to `.env` and set `DEV_PORT`.
-
-## Test and release
-
-```sh
 make test-unit
 make test-integration
 make build
 make test-e2e
+make dev
 ```
 
-Local builds default to the Docker daemon's architecture; `BUILD_PLATFORM=linux/amd64` or `linux/arm64` can select another supported target if your builder can run it. CI uses native AMD64 and ARM64 runners. Each builds once and browser-tests that exact image. After both pass, a `main` push publishes their saved artifacts as one multi-platform release, without rebuilding. Pull requests and manual runs do not publish.
+Development: http://localhost:8080. Calculator: http://localhost:8080/calculator.
 
-```mermaid
-flowchart LR
-    edit[Application change] --> test[Native AMD64 and ARM64 tests]
-    test --> artifacts[Exact tested image artifacts]
-    artifacts --> hub[Docker Hub multi-platform release]
-    hub --> wud[WUD updates only this application]
-    wud --> prod[Production]
-    prod --> health[Verify running commit and image]
-```
+For initial server bootstrap, configure the external `hosting-web` network/proxy and routing overlay, then use `make deploy` and `make deploy-qa` after the corresponding images exist. Subsequent branch releases update automatically. Docker starts on boot; the services use restart policies.
 
-Each release has a `sha-<full-commit>` tag and a moving `prod` channel. Older releases from the original demo are ARM64-only. Choose a new compatible release when rolling back an AMD64 server.
+## Historical template documentation
 
-## Operate
+This project builds on the course calculator template. Older records in `docs/evidence.md`, `docs/qa.md`, and `docs/integration-evidence.md` refer to the original author's demonstration and are not this student's submission evidence. Use this README's Test Evidence section for the Xenoshin deployment.
 
-```sh
-make deploy             # Production + updater only; no development build
-make verify-production  # Compare actual container image ID and health identity
-make status
-make check-updates
-make rollback RELEASE=sha-FULL_40_CHARACTER_COMMIT
-make resume-updates
-```
-
-Use the Make commands so persisted rollback state and a local `compose.override.yaml` remain in effect. `make down` stops only this Compose project and retains updater data. [The hosting handoff](docs/hosting.md) explains the optional override and public verification. A green publishing workflow is not proof that a remote server updated.
-
-## Boundaries
-
-No DNS credentials, Traefik installation, public firewall changes, or TLS certificate store belong here. No application source or duplicate publishing workflow belongs in the hosting repository. The integration contract is an OCI image, container port `8000`, `/health` release identity, and an optional external network/Host-rule overlay.
-
-The original single-architecture demo has recorded publication, update, failure, and rollback evidence. New multi-platform and integration validation is recorded separately in [integration evidence](docs/integration-evidence.md); a proposed exercise is not a claimed deployment.
+[Specification](docs/spec.md) · [Testing](docs/testing.md) · [CI/CD details](docs/ci-cd.md) · [Contributing](CONTRIBUTING.md)

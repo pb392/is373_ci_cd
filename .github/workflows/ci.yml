@@ -3,14 +3,14 @@ name: CI / CD
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, qa]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'production' || format('verify-{0}', github.ref) }}
+  group: ${{ format('{0}-{1}', github.event_name, github.ref) }}
   cancel-in-progress: ${{ github.event_name != 'push' }}
 
 jobs:
@@ -115,7 +115,7 @@ jobs:
 
   publish:
     needs: verify
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/qa')
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -142,3 +142,33 @@ jobs:
           path: artifacts/
           if-no-files-found: ignore
           retention-days: 7
+
+  deployment:
+    name: Verify automatic deployment
+    needs: publish
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Wait for the public environment to run this commit
+        env:
+          DEPLOY_URL: ${{ github.ref == 'refs/heads/qa' && 'https://qa.xenoshin.com' || 'https://xenoshin.com' }}
+          DEPLOY_ENV: ${{ github.ref == 'refs/heads/qa' && 'qa' || 'production' }}
+          EXPECTED_COMMIT: ${{ github.sha }}
+        run: python3 scripts/verify_deployment.py
+      - name: Install browser evidence tools
+        run: |
+          make setup
+          sh scripts/uv.sh run --frozen playwright install --with-deps --only-shell chromium
+      - name: Capture both public environments
+        run: sh scripts/uv.sh run --frozen python scripts/capture_deployment.py
+      - name: Retain public deployment evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: deployment-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            artifacts/deployment.json
+            artifacts/screenshots/
+          if-no-files-found: ignore
+          retention-days: 90

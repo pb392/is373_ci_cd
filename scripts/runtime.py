@@ -225,6 +225,16 @@ def main():
         deploy(include_dev=True)
     elif command == "deploy":
         deploy()
+    elif command == "deploy-qa":
+        initialize_updater()
+        compose("pull", "qa")
+        compose("up", "-d", "--no-deps", "qa")
+        health = wait_for_health("http://127.0.0.1:8092/health")
+        if health["environment"] != "qa":
+            raise RuntimeError("QA environment mismatch")
+        print(json.dumps(health, indent=2))
+        if not (STATE / "updates-paused").exists():
+            compose("up", "-d", "wud")
     elif command == "verify-production":
         verify_production(production_reference())
     elif command == "down":
