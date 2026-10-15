@@ -13,7 +13,7 @@ This repository teaches development history as well as deployment. Prefer small,
 7. Open a PR with acceptance evidence, scope, and any untested limitations.
 8. Merge when the issue's acceptance criteria are satisfied and required checks pass. A deployment issue also needs evidence from the running host.
 
-The initial documentation bootstrap goes directly to the empty repository's `main` branch so the specifications and issue forms can be reviewed on GitHub. Subsequent implementation should use branches and PRs. The solo-maintainer demo requires no reviewer approval count, but `main` now requires an up-to-date passing `verify` check and PRs, including for administrators.
+The initial documentation bootstrap goes directly to the empty repository's `main` branch so the specifications and issue forms can be reviewed on GitHub. Subsequent implementation should use branches and PRs. For the Xenoshin assessment, verify QA first and merge its pull request into `main` only after the `verify` checks and public QA deployment pass. This describes the project promotion procedure, not a claim that GitHub branch protection is enabled.
 
 ## Atomic commits
 

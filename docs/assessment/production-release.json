@@ -1,0 +1,33 @@
+{
+  "commit": "7bd96ead44ff779d605df7e9da3501d16b09a827",
+  "version": "pb392/is373_ci_cd:sha-7bd96ead44ff779d605df7e9da3501d16b09a827",
+  "digest": "pb392/is373_ci_cd@sha256:66a654b545f9f2da73aebd77c1b7c7bb951930c91b1b19920262942e8a1a7c2f",
+  "platforms": {
+    "amd64": {
+      "image_id": "sha256:c3ce552426dde0aa1b53da3a6f7b3eb6167611937f9727306c8d4517eabadbd9",
+      "commit": "7bd96ead44ff779d605df7e9da3501d16b09a827",
+      "architecture": "amd64",
+      "os": "linux",
+      "health": {
+        "status": "ok",
+        "environment": "test",
+        "commit": "7bd96ead44ff779d605df7e9da3501d16b09a827",
+        "built_at": "2026-10-15T17:29:40Z"
+      },
+      "digest": "pb392/is373_ci_cd@sha256:b5dcbdac14b278ae70f58e11b83aff8592b717fb874fc7960560bdfc1d3fa45f"
+    },
+    "arm64": {
+      "image_id": "sha256:a5e8725367e2c8c9778aa3c71438aefcbcd43dedbf20f81e6504c3f1664f5ab5",
+      "commit": "7bd96ead44ff779d605df7e9da3501d16b09a827",
+      "architecture": "arm64",
+      "os": "linux",
+      "health": {
+        "status": "ok",
+        "environment": "test",
+        "commit": "7bd96ead44ff779d605df7e9da3501d16b09a827",
+        "built_at": "2026-10-15T17:29:49Z"
+      },
+      "digest": "pb392/is373_ci_cd@sha256:0857e8d68246b7dc831d4ffbde324cf8cd64f678461dfa88503ead4c1682161e"
+    }
+  }
+}

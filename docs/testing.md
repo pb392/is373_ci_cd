@@ -1,6 +1,6 @@
 # Testing strategy
 
-Status: implemented and verified locally, in GitHub Actions, and against the published production image. Current counts: 22 unit, 16 integration, and 7 Chromium tests. See [recorded evidence](evidence.md). The suite should be small enough that most feedback time comes from runner setup, image builds, and deployment polling rather than test execution.
+Current assessment pipeline: 38 unit, 18 integration, and 9 Chromium tests on each native architecture. The original template’s historical test results are retained below. See [recorded evidence](evidence.md). The suite should be small enough that most feedback time comes from runner setup, image builds, and deployment polling rather than test execution.
 
 ## Test layers
 
