@@ -16,11 +16,53 @@ Pull requests and manual workflow runs test but never publish. A failed test or 
 
 ## Test Evidence
 
-The [QA bootstrap workflow](https://github.com/pb392/is373_ci_cd/actions/runs/38776465642) passed both native platform checks, published the QA image, and verified its public HTTPS release. The QA service was started once using the non-root account; subsequent releases use the automatic updater.
+Verified October 15, 2026. The demonstration below records actual releases and screenshots, not planned results.
 
-[SSH verification](docs/assessment/ssh-verification.txt) records successful key login as `webadmin`, effective disabled root/password authentication, and rejected root and password-only connections. No private credentials are included.
+| Stage | Successful workflow | Deployed commit | Observed result |
+| --- | --- | --- | --- |
+| Initial QA bootstrap | [QA setup](https://github.com/pb392/is373_ci_cd/actions/runs/38776465642) | `2bd73b041e2fd9d130a53f95b425291249590fad` | Version 2 on QA; initial container startup through non-root administration. |
+| Automatic QA update | [QA Version 3](https://github.com/pb392/is373_ci_cd/actions/runs/38777135301) | `4383044fe2b57f708b7865be7710de64da643caa` | QA automatically changed to Version 3 while production stayed at `4127aa3f2514e95e738ed88a31bb2ca89b581d96`. |
+| Promotion to production | [Production Version 3](https://github.com/pb392/is373_ci_cd/actions/runs/38777729613) | `7bd96ead44ff779d605df7e9da3501d16b09a827` | [PR #6](https://github.com/pb392/is373_ci_cd/pull/6) merged QA into main; production automatically changed to Version 3 while QA retained its own commit. |
 
-The visible Version 3 change is being demonstrated through QA and then production. The final workflow links, before/after screenshots, and deployed identities will be recorded after that real promotion completes.
+Each release passed **38 unit tests, 18 integration tests, and 9 real-browser tests on each native AMD64 and ARM64 runner** before publication. The `verify` dependency blocks publication after a failed test/build. The final deployment job checks the expected live commit and environment over trusted HTTPS, then captures both pages.
+
+**Image registry:** [pb392/is373_ci_cd](https://hub.docker.com/r/pb392/is373_ci_cd). Demonstrated immutable release tags:
+
+- QA: `pb392/is373_ci_cd:sha-4383044fe2b57f708b7865be7710de64da643caa`; index digest `sha256:9251e01be564dc86a8cfffc38a74e70316d64d14a14c21a617eb0dbf6f0c8a82`.
+- Production: `pb392/is373_ci_cd:sha-7bd96ead44ff779d605df7e9da3501d16b09a827`; index digest `sha256:66a654b545f9f2da73aebd77c1b7c7bb951930c91b1b19920262942e8a1a7c2f`.
+
+[QA image/platform receipt](docs/assessment/qa-release.json) · [Production image/platform receipt](docs/assessment/production-release.json) · [QA isolation observations](docs/assessment/qa-isolation.json) · [After-promotion observations](docs/assessment/after-promotion.json).
+
+The screenshots and commit IDs above document the promotion demonstration. Later documentation-only releases may advance the production commit without changing the page. Current running identities are always visible at [QA health](https://qa.xenoshin.com/health) and [production health](https://xenoshin.com/health), and the latest runs are on [GitHub Actions](https://github.com/pb392/is373_ci_cd/actions/workflows/ci.yml).
+
+### Visible change: QA first, production afterward
+
+QA started at [Version 2](docs/assessment/qa-version-2.png). The subsequent QA push visibly introduced Version 3:
+
+![QA shows Version 3 and its QA commit](docs/assessment/qa-version-3.png)
+
+At that same point, production still showed the original page:
+
+![Production remains unchanged before promotion](docs/assessment/production-before-promotion.png)
+
+After merging QA into main, production automatically showed Version 3 with its production environment and merge commit:
+
+![Production shows Version 3 after promotion](docs/assessment/production-version-3.png)
+
+### SSH security evidence
+
+[Redacted terminal verification](docs/assessment/ssh-verification.txt) records:
+
+- Successful SSH-key login as the non-root `webadmin` account (UID 1000) and successful limited sudo administration.
+- Effective `PermitRootLogin no`, `PasswordAuthentication no`, `KbdInteractiveAuthentication no`, and `PubkeyAuthentication yes`.
+- Root key login rejected with exit status 255.
+- Password-only login rejected with exit status 255.
+
+The non-root login and administration command were verified before root SSH was disabled. QA's initial deployment also ran through `webadmin`; subsequent deployments were performed by the automatic updater. No private keys, passwords, or tokens are included in this evidence.
+
+### Explain and demonstrate in class
+
+Push a small visible change to `qa`; show the QA workflow, new QA page/commit, and unchanged production page/commit. Review QA and merge its PR into `main`; show the production workflow and updated production page. Explain that tests gate image publication, WUD watches separate tags, and the workflow independently verifies the deployed commit. For SSH, use `ssh webadmin@104.248.180.176` and `sudo /usr/local/sbin/xenoshin-admin ssh-settings`; demonstrate that direct root and password-only logins are rejected.
 
 ## Deployment configuration
 

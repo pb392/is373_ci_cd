@@ -1,5 +1,7 @@
 # Hosting handoff: two complementary repositories
 
+For this student’s deployed QA/production setup, use the [repository README](../README.md) and the tracked [deployment configuration](../deploy/). The companion workflow below is retained as template background.
+
 ## Ownership
 
 | This repository: is373_ci_cd | Companion: 373_hosting |
@@ -14,7 +16,7 @@ The app works locally without Traefik. The host works with Apache welcome pages 
 
 ## Stable contract
 
-- Published image: `kaw393939/is373_ci_cd:prod`, with multi-platform `sha-<full-commit>` rollback references after the new pipeline's first release.
+- Published image: `pb392/is373_ci_cd:prod`, with multi-platform `sha-<full-commit>` rollback references after the new pipeline's first release.
 - HTTP container port: `8000`.
 - Readiness/release endpoint: `GET /health`, returning status, production environment, full commit, and build time.
 - Host port `8090` remains loopback-only for local operational checks; public users connect through Traefik on 443.

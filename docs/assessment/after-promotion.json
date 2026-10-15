@@ -1,0 +1,20 @@
+{
+  "qa": {
+    "url": "https://qa.xenoshin.com",
+    "health": {
+      "status": "ok",
+      "environment": "qa",
+      "commit": "4383044fe2b57f708b7865be7710de64da643caa",
+      "built_at": "2026-10-15T17:25:39Z"
+    }
+  },
+  "production": {
+    "url": "https://xenoshin.com",
+    "health": {
+      "status": "ok",
+      "environment": "production",
+      "commit": "7bd96ead44ff779d605df7e9da3501d16b09a827",
+      "built_at": "2026-10-15T17:29:40Z"
+    }
+  }
+}
