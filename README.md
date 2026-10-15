@@ -16,7 +16,11 @@ Pull requests and manual workflow runs test but never publish. A failed test or 
 
 ## Test Evidence
 
-Evidence collection for issue [#5](https://github.com/pb392/is373_ci_cd/issues/5) is in progress. Verified workflow URLs, before/after screenshots, SSH results, and deployed identities will be added here after the real promotion completes. This paragraph is not a claim that the demonstration has passed.
+The [QA bootstrap workflow](https://github.com/pb392/is373_ci_cd/actions/runs/38776465642) passed both native platform checks, published the QA image, and verified its public HTTPS release. The QA service was started once using the non-root account; subsequent releases use the automatic updater.
+
+[SSH verification](docs/assessment/ssh-verification.txt) records successful key login as `webadmin`, effective disabled root/password authentication, and rejected root and password-only connections. No private credentials are included.
+
+The visible Version 3 change is being demonstrated through QA and then production. The final workflow links, before/after screenshots, and deployed identities will be recorded after that real promotion completes.
 
 ## Deployment configuration
 
